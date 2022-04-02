@@ -48,6 +48,10 @@ do
 		exit 1
 	fi
 
+	# use jq to extract dependency names and versions
+	cat package-lock.json | jq -r '.dependencies | to_entries[] | "\(.key)@\(.value | .version)"' > $LOGFILE.deps
+	cat package-lock.json | jq -r '.dependencies | to_entries[] | .value | .dependencies | select( . != null ) | to_entries[] | "\(.key)@\(.value | .version)"' >> $LOGFILE.deps
+
 	mv package-lock.json $COPYDIR/
 	if [ $? != 0 ]
 	then
@@ -71,5 +75,10 @@ do
 
 	# increment X
 	let X++
+
+	if [ $X -gt 5 ]
+	then
+		exit
+	fi
 done
 
