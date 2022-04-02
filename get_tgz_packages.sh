@@ -6,7 +6,13 @@ TEMPDIR="npm_packages"
 NODEDIR="node_modules"
 
 rm -f $TGZLIST 2>/dev/null && rm -rf $TEMPDIR 2>/dev/null && mkdir $TEMPDIR
-find $NODEDIR -name package.json -exec grep _id {} \; | awk '{ print $2 }' | sed s'/[",]//'g | sort -u > $TGZLIST
+
+for pj in $(find ${NODEDIR}[0-9]* -name package.json)
+do
+	awk '{ if (/name/){ printf "%s@", $NF }; if (/version/){ print $NF ; exit } }' $pj | sed s'/[,"]//'g
+
+done | tee $TGZLIST
+exit
 
 for tgz_file in $(grep -v "^#|^$" $TGZLIST | sort -u)
 do
