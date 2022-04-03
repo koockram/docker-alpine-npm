@@ -1,5 +1,23 @@
 #!/usr/bin/env ash
 
+# The script is driven by an input file called "list_npm_packages.txt", and contains names of packages (with oe without version), e.g.
+# @testing-library/react
+# @testing-library/user-event@12.4.5
+# typescript@1.0.2
+
+# The script will create directory node_modules.[int] where int starts at 1 and increments for each package listed in the file
+# node_modules.1 = @testing-library/react
+# node_modules.2 = @testing-library/user-event@12.4.5
+# node_modules.3 = typescript@1.0.2
+
+# In each node_modules.[int] directory, the script installs the package and all dependencies.
+# It creates logs of the results and also contains npm files package.json and package-lock.json, e.g.
+# log.audit log.deps log.install log.list log.pkgs log.rslvd node_modules package-lock.json package.json
+
+# The scripit will error and exit if return code is unsuccessful on key operations
+
+# When the script finishes, run script "get_tgz_packages.sh" to create the tgz packages that will import to Artifactory
+
 NPMLIST="list_npm_packages.txt"
 NODEDIR="node_modules"
 X=1
