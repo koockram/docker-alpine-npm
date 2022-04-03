@@ -1,46 +1,39 @@
 #!/usr/bin/env ash
 
-TGZLIST="list_tgz_packages.txt"
-TARFILE="npm_packages.tar"
-TEMPDIR="npm_packages"
 NODEDIR="node_modules"
+PKGLIST="log.pkgs"
 
-rm -f $TGZLIST 2>/dev/null && rm -rf $TEMPDIR 2>/dev/null && mkdir $TEMPDIR
-
-for pj in $(find ${NODEDIR}[0-9]* -name package.json)
+for i in ${NODEDIR}.[0-9]*
 do
-	awk '{ if (/name/){ printf "%s@", $NF }; if (/version/){ print $NF ; exit } }' $pj | sed s'/[,"]//'g
+	INT=$(echo $i | awk -F "." '{ print $2 }')
+	TARFILE="npm_packages.${INT}.tar"
+	TEMPDIR="npm_packages.${INT}"
+	rm -rf $TEMPDIR 2>/dev/null && mkdir $TEMPDIR
 
-done | tee $TGZLIST
-exit
+	PKGLIST=$i/$PKGLIST
 
-for tgz_file in $(grep -v "^#|^$" $TGZLIST | sort -u)
-do
-	tmpf=$(echo $tgz_file | sed s'/^@//' | sed s'#[@/]#-#'g).tgz
-	chkf=$TEMPDIR/$tmpf
-	if [ ! -f $chkf ]
+	for pkg in $(grep -v "^#|^$" $PKGLIST | sort -u)
+	do
+		tgz_file=$(echo $pkg | sed s'/^@//' | sed s'#[@/]#-#'g).tgz
+		chk_file=$TEMPDIR/$tgz_file
+		if [ ! -f $chk_file ]
+		then
+			npm pack $pkg --pack-destination $TEMPDIR --verbose
+			if [ $? != 0 ]
+			then
+				echo "ERROR: npm pack $pkg"
+				exit 1
+			fi
+		fi
+	done
+
+	tar -cvf $TARFILE $TEMPDIR
+	if [ $? != 0 ]
 	then
-		npm pack $tgz_file --verbose
-		if [ $? != 0 ]
-		then
-			echo "ERROR: npm pack $tgz_file"
-			exit 1
-		fi
-
-		mv $tmpf $chkf
-		if [ $? != 0 ]
-		then
-			echo "ERROR: mv $tmpf $chkf"
-			exit 1
-		fi
+		echo "ERROR: tar -cvf $TARFILE $TMPDIR"
+		exit 1
 	fi
+
+	ls -l $TARFILE
+	exit
 done
-
-tar -cvf $TARFILE $TEMPDIR
-if [ $? != 0 ]
-then
-	echo "ERROR: tar -cvf $TARFILE $TMPDIR"
-	exit 1
-fi
-
-ls -l $TARFILE
