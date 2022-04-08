@@ -1,1 +1,23 @@
-create-react-library
+# File containing list of npm packages, used by script "npm_get_packages.sh"
+# Add package names as a list in the following standard npm formats.
+# Comment lines are ignored by the script .
+
+# Examples:
+# @scope/pkg@version    e.g. @types/react@16.9.27                 version: 16.9.27
+# @scope/pkg@^version        @types/jest@^25.1.4                           25.*.*
+# @scope/pkg@~version        @testing-library/user-event@~7.2.1            7.2.*
+# @scope/pkg                 @types/node                                   latest
+# pkg@^version               babel-eslint@^10.0.3                          10.*.*
+# pkg                        cross-env                                     latest
+
+# Version Symbols:
+# caret (^)  e.g. ^3.9.2 means  3.*.*   i.e. minor non-breaking change and bug fix
+# tilde (~)  e.g. ~3.9.2 means  3.9.*        bug fix
+
+# Delimiters
+# Leading "@" denotes package scope
+# Delimit package scope and name with "/"
+# Delimit package name and version with "@"
+
+# Add list below.
+

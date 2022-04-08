@@ -1,4 +1,4 @@
-#!/usr/bin/env ash
+#!/usr/bin/env sh
 
 # The script is driven by an input file called "list_npm_packages.txt", and contains names of packages (with oe without version), e.g.
 # @testing-library/react
@@ -17,6 +17,14 @@
 # The scripit will error and exit if return code is unsuccessful on key operations
 
 # When the script finishes, run script "get_tgz_packages.sh" to create the tgz packages that will import to Artifactory
+
+# check jq is installed
+which jq
+if [ $? != 0 ]
+then
+	echo "ERROR: jq not installed"
+	exit 1
+fi
 
 NPMLIST="list_npm_packages.txt"
 NODEDIR="node_modules"
@@ -44,7 +52,9 @@ do
 		exit 1
 	fi
 
-	LOGFILE=${COPYDIR}/log
+	LOGNAME=$(echo $mod_name | sed -e s'#[^a-zA-Z/-]##'g -e s'#/#-#'g)
+	LOGFILE=${COPYDIR}/log.${LOGNAME}
+
 
 	# install package and all deps
 	npm install $mod_name --save --verbose 2>&1 | tee $LOGFILE.install
