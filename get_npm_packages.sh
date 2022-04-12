@@ -16,6 +16,8 @@
 
 # The scripit will error and exit if return code is unsuccessful on key operations
 
+# Run script with --save-space option which removed interim node_modules firectories
+
 # When the script finishes, run script "get_tgz_packages.sh" to create the tgz packages that will import to Artifactory
 
 # check jq is installed
@@ -29,6 +31,12 @@ fi
 NPMLIST="list_npm_packages.txt"
 NODEDIR="node_modules"
 X=1
+S=1
+
+case $1 in
+	--save-space) S=0
+		;;
+esac
 
 # clear up working directory of any previous runs
 rm -f package* 2>/dev/null && rm -rf ${NODEDIR}* 2>/dev/null
@@ -133,6 +141,11 @@ do
 	then
 		echo "ERROR: mv package.json $COPYDIR/"
 		exit 1
+	fi
+
+	if [ $S = 0 ]
+	then
+		rm -rf $COPYDIR/node_modules
 	fi
 
 	# increment X
